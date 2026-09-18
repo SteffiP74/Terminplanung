@@ -5,26 +5,180 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Freitags-Terminabstimmung</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#202124;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-main{max-width:720px;margin:0 auto;padding:24px 16px 48px}h1{font-size:1.65rem;margin:0 0 6px}
-.intro{color:#5f6368;margin:0 0 20px}.card{background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 1px 4px #00000012}
-.date{font-weight:700;font-size:1.05rem}.count{font-size:.9rem;color:#666;margin:3px 0 12px}.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.slot{min-height:44px;padding:10px;border:1px solid #ddd;border-radius:9px;background:#fafafa;display:flex;align-items:center}
-.free{color:#777}.full{background:#f0f0f0;color:#666}.form{display:flex;gap:8px;margin-top:10px}.form input{flex:1;min-width:0;padding:11px;border:1px solid #ccc;border-radius:9px;font:inherit}.form button{padding:11px 15px;border:0;border-radius:9px;background:#222;color:white;font:inherit;cursor:pointer}.form button:disabled{opacity:.45;cursor:not-allowed}
-.msg{margin-top:12px;padding:10px;border-radius:9px;background:#f0f6ff}.error{background:#fff0f0}.loading{text-align:center;color:#666;padding:20px}
-@media(max-width:520px){.slots{grid-template-columns:1fr}.form{flex-direction:column}.form button{width:100%}}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#f5f6f8;
+  color:#202124;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif
+}
+main{
+  max-width:720px;
+  margin:0 auto;
+  padding:24px 16px 48px
+}
+h1{
+  font-size:1.65rem;
+  margin:0 0 6px
+}
+.intro{
+  color:#5f6368;
+  margin:0 0 20px
+}
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  margin:10px 0;
+  box-shadow:0 1px 4px #00000012
+}
+.date{
+  font-weight:700;
+  font-size:1.05rem
+}
+.count{
+  font-size:.9rem;
+  color:#666;
+  margin:3px 0 12px
+}
+.slots{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px
+}
+.slot{
+  min-height:44px;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:9px;
+  background:#fafafa;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px
+}
+.free{
+  color:#777
+}
+.full{
+  background:#f0f0f0;
+  color:#666
+}
+.slot-name{
+  flex:1
+}
+.edit-btn{
+  padding:6px 9px;
+  border:0;
+  border-radius:7px;
+  background:#e8eaed;
+  color:#202124;
+  cursor:pointer;
+  font:inherit;
+  font-size:.85rem
+}
+.edit-btn:hover{
+  background:#dadce0
+}
+.form{
+  display:flex;
+  gap:8px;
+  margin-top:10px
+}
+.form input{
+  flex:1;
+  min-width:0;
+  padding:11px;
+  border:1px solid #ccc;
+  border-radius:9px;
+  font:inherit
+}
+.form button{
+  padding:11px 15px;
+  border:0;
+  border-radius:9px;
+  background:#222;
+  color:white;
+  font:inherit;
+  cursor:pointer
+}
+.form button:disabled{
+  opacity:.45;
+  cursor:not-allowed
+}
+.edit-form{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap
+}
+.edit-form input{
+  flex:1;
+  min-width:180px;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:9px;
+  font:inherit
+}
+.edit-form button{
+  padding:10px 14px;
+  border:0;
+  border-radius:9px;
+  background:#222;
+  color:white;
+  font:inherit;
+  cursor:pointer
+}
+.edit-form .cancel{
+  background:#e8eaed;
+  color:#202124
+}
+.msg{
+  margin-top:12px;
+  padding:10px;
+  border-radius:9px;
+  background:#f0f6ff
+}
+.error{
+  background:#fff0f0
+}
+.loading{
+  text-align:center;
+  color:#666;
+  padding:20px
+}
+@media(max-width:520px){
+  .slots{
+    grid-template-columns:1fr
+  }
+  .form{
+    flex-direction:column
+  }
+  .form button{
+    width:100%
+  }
+  .edit-form{
+    flex-direction:column
+  }
+  .edit-form input,
+  .edit-form button{
+    width:100%
+  }
+}
 </style>
 </head>
 <body>
 <main>
 <h1>Freitags-Terminabstimmung</h1>
-<p class="intro">Ab 18.09.2026 bis 31.07.2027. Ferien und bayerische Feiertage sind ausgeschlossen. Pro Freitag sind maximal 2 Plätze verfügbar.</p>
+<p class="intro">
+Ab 18.09.2026 bis 31.07.2027. Ferien und bayerische Feiertage sind ausgeschlossen.
+Pro Freitag sind maximal 2 Plätze verfügbar.
+</p>
 <div id="app" class="loading">Termine werden geladen …</div>
 </main>
 <script>
 const SUPABASE_URL = "https://vqlnatphdkgclpftihup.supabase.co";
 const SUPABASE_KEY = "sb_publishable_6sVrjt50UulvNnDOhNuBzA_uYuzaiie";
-
 const excluded = new Set([
 "2026-10-02","2026-10-09","2026-10-16","2026-10-23","2026-10-30",
 "2026-12-25","2027-01-01","2027-01-08",
@@ -32,65 +186,249 @@ const excluded = new Set([
 "2027-03-26","2027-04-02","2027-04-09",
 "2027-05-21","2027-05-28"
 ]);
-
-function pad(n){return String(n).padStart(2,"0")}
-function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
-function german(d){return d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"})}
-function dates(){
- const out=[], d=new Date(2026,8,18), end=new Date(2027,6,31);
- while(d<=end){if(d.getDay()===5&&!excluded.has(iso(d)))out.push(iso(d));d.setDate(d.getDate()+1)}
- return out;
+function pad(n){
+  return String(n).padStart(2,"0");
 }
-async function api(path, options={}){
- const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{
-   ...options,
-   headers:{
-     apikey:SUPABASE_KEY,
-     Authorization:"Bearer "+SUPABASE_KEY,
-     "Content-Type":"application/json",
-     ...(options.headers||{})
-   }
- });
- if(!r.ok){let t=await r.text();throw new Error(t||"Fehler")}
- return r.status===204?null:r.json();
+function iso(d){
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
+function german(d){
+  return d.toLocaleDateString("de-DE",{
+    weekday:"long",
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric"
+  });
+}
+function dates(){
+  const out=[];
+  const d=new Date(2026,8,18);
+  const end=new Date(2027,6,31);
+  while(d<=end){
+    if(d.getDay()===5 && !excluded.has(iso(d))){
+      out.push(iso(d));
+    }
+    d.setDate(d.getDate()+1);
+  }
+  return out;
+}
+async function api(path,options={}){
+  const r=await fetch(
+    SUPABASE_URL+"/rest/v1/"+path,
+    {
+      ...options,
+      headers:{
+        apikey:SUPABASE_KEY,
+        Authorization:"Bearer "+SUPABASE_KEY,
+        "Content-Type":"application/json",
+        ...(options.headers||{})
+      }
+    }
+  );
+  if(!r.ok){
+    let t=await r.text();
+    throw new Error(t||"Fehler");
+  }
+  return r.status===204 ? null : r.json();
 }
 async function load(){
- const list=dates();
- const rows=await api("termine?select=datum%2Cname&order=datum.asc");
- const by={}; rows.forEach(x=>(by[x.datum]??=[]).push(x.name));
- render(list,by);
+  const list=dates();
+  const rows=await api(
+    "termine?select=datum%2Cname&order=datum.asc"
+  );
+  const by={};
+  rows.forEach(x=>{
+    (by[x.datum]??=[]).push(x.name);
+  });
+  render(list,by);
 }
 function render(list,by){
- const app=document.getElementById("app");app.innerHTML="";
- list.forEach(day=>{
-   const names=by[day]||[], card=document.createElement("section");card.className="card";
-   card.innerHTML=`<div class="date">${german(new Date(day+"T12:00:00"))}</div>
-   <div class="count">${names.length}/2 Plätze belegt</div>
-   <div class="slots">${[0,1].map(i=>`<div class="slot ${names[i]?"":"free"}">${names[i]||"frei"}</div>`).join("")}</div>
-   ${names.length<2?`<div class="form"><input maxlength="80" placeholder="Dein Name"><button>Eintragen</button></div>`:"<div class=\"count\" style=\"margin-top:10px\">🔒 Dieser Termin ist voll.</div>"}`;
-   const btn=card.querySelector("button");
-   if(btn) btn.onclick=()=>submit(day,card,btn,by);
-   app.appendChild(card);
- });
+  const app=document.getElementById("app");
+  app.innerHTML="";
+  list.forEach(day=>{
+    const names=by[day]||[];
+    const card=document.createElement("section");
+    card.className="card";
+    const slots=[0,1].map(i=>{
+      if(!names[i]){
+        return `
+          <div class="slot free">
+            <span class="slot-name">frei</span>
+          </div>
+        `;
+      }
+      return `
+        <div class="slot">
+          <span class="slot-name">${escapeHtml(names[i])}</span>
+          <button class="edit-btn" type="button">
+            Bearbeiten
+          </button>
+        </div>
+      `;
+    }).join("");
+    card.innerHTML=`
+      <div class="date">
+        ${german(new Date(day+"T12:00:00"))}
+      </div>
+      <div class="count">
+        ${names.length}/2 Plätze belegt
+      </div>
+      <div class="slots">
+        ${slots}
+      </div>
+      ${
+        names.length<2
+        ?
+        `<div class="form">
+          <input maxlength="80" placeholder="Dein Name">
+          <button type="button">Eintragen</button>
+        </div>`
+        :
+        `<div class="count" style="margin-top:10px">
+          🔒 Dieser Termin ist voll.
+        </div>`
+      }
+    `;
+    const buttons=card.querySelectorAll(".edit-btn");
+    buttons.forEach((btn,index)=>{
+      btn.onclick=()=>{
+        showEditForm(day,names[index],card,by);
+      };
+    });
+    const addBtn=card.querySelector(".form button");
+    if(addBtn){
+      addBtn.onclick=()=>{
+        submit(day,card,addBtn,by);
+      };
+    }
+    app.appendChild(card);
+  });
+}
+function escapeHtml(text){
+  const div=document.createElement("div");
+  div.textContent=text;
+  return div.innerHTML;
+}
+function showEditForm(day,oldName,card,by){
+  if(card.querySelector(".edit-form")) return;
+  const form=document.createElement("div");
+  form.className="edit-form";
+  form.innerHTML=`
+    <input
+      maxlength="80"
+      value="${escapeHtml(oldName)}"
+      aria-label="Neuer Name"
+    >
+    <button type="button">Speichern</button>
+    <button type="button" class="cancel">Abbrechen</button>
+  `;
+  card.appendChild(form);
+  const input=form.querySelector("input");
+  const save=form.querySelector("button:not(.cancel)");
+  const cancel=form.querySelector(".cancel");
+  input.focus();
+  input.select();
+  cancel.onclick=()=>{
+    form.remove();
+  };
+  save.onclick=()=>{
+    edit(day,oldName,input,save,form,by);
+  };
+}
+async function edit(day,oldName,input,btn,form,by){
+  const newName=input.value.trim();
+  if(!newName){
+    input.focus();
+    return;
+  }
+  if(newName===oldName){
+    form.remove();
+    return;
+  }
+  btn.disabled=true;
+  btn.textContent="Wird gespeichert …";
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/rpc/bearbeiten",
+      {
+        method:"POST",
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:"Bearer "+SUPABASE_KEY,
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          p_datum:day,
+          p_name_alt:oldName,
+          p_name_neu:newName
+        })
+      }
+    );
+    if(!r.ok){
+      let t=await r.text();
+      throw new Error(t);
+    }
+    await load();
+  }catch(e){
+    btn.disabled=false;
+    btn.textContent="Speichern";
+    let m=form.querySelector(".msg");
+    if(!m){
+      m=document.createElement("div");
+      m.className="msg error";
+      form.appendChild(m);
+    }
+    m.textContent=
+      "Änderung nicht möglich. Bitte prüfen, ob Name und Datum noch stimmen.";
+  }
 }
 async function submit(day,card,btn,by){
- const input=card.querySelector("input"), name=input.value.trim();
- if(!name){input.focus();return}
- btn.disabled=true;btn.textContent="Wird eingetragen …";
- try{
-   const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/eintragen",{
-     method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},
-     body:JSON.stringify({p_datum:day,p_name:name})
-   });
-   if(!r.ok){let t=await r.text();throw new Error(t)}
-   await load();
- }catch(e){
-   btn.disabled=false;btn.textContent="Eintragen";
-   let m=card.querySelector(".msg");if(!m){m=document.createElement("div");m.className="msg error";card.appendChild(m)}
-   m.textContent="Eintrag nicht möglich – der Termin könnte gerade von jemand anderem belegt worden sein. Bitte neu laden.";
- }
+  const input=card.querySelector(".form input");
+  const name=input.value.trim();
+  if(!name){
+    input.focus();
+    return;
+  }
+  btn.disabled=true;
+  btn.textContent="Wird eingetragen …";
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/rpc/eintragen",
+      {
+        method:"POST",
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:"Bearer "+SUPABASE_KEY,
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          p_datum:day,
+          p_name:name
+        })
+      }
+    );
+    if(!r.ok){
+      let t=await r.text();
+      throw new Error(t);
+    }
+    await load();
+  }catch(e){
+    btn.disabled=false;
+    btn.textContent="Eintragen";
+    let m=card.querySelector(".msg");
+    if(!m){
+      m=document.createElement("div");
+      m.className="msg error";
+      card.appendChild(m);
+    }
+    m.textContent=
+      "Eintrag nicht möglich – der Termin könnte gerade von jemand anderem belegt worden sein. Bitte neu laden.";
+  }
 }
-load().catch(e=>{document.getElementById("app").innerHTML='<div class="card msg error">Die Termine konnten nicht geladen werden. Bitte später erneut versuchen.</div>'});
+load().catch(e=>{
+  document.getElementById("app").innerHTML=
+    '<div class="card msg error">Die Termine konnten nicht geladen werden. Bitte später erneut versuchen.</div>';
+});
 </script>
 </body>
 </html>
